@@ -30,8 +30,8 @@ def save_recipe_to_file(recipe, path):
         f.write("\n")
 
 
-def scrap_skipped_pages():
-    with open('../../data/essen_und_trinken/new_skipped.txt', 'r') as f:
+def scrap_skipped_eut_pages(path):
+    with open(path, 'r') as f:
         urls = f.readlines()
 
     skipped = []
@@ -104,7 +104,7 @@ def scrap_essen_und_trinken_pages():
                 f.write(skipped_recipe + '\n')
 
 
-def get_origin_information_from_recipe_page(soup):
+def get_origin_information_from_eut_recipe_page(soup):
     origin_element = soup.find("div", class_="recipe-references").find("div", class_="source-reference")
     if origin_element:
         return origin_element.text.split('\n')[-1].strip(' ').replace(' ', '_').replace('/', '_')
@@ -112,7 +112,7 @@ def get_origin_information_from_recipe_page(soup):
         return "essen_und_trinken"
 
 
-def get_servings_information_from_recipe_page(soup, ingredients_element):
+def get_servings_information_from_eut_recipe_page(soup, ingredients_element):
     servings_element = soup.find("div", class_="servings")
 
     if servings_element:
@@ -127,7 +127,7 @@ def get_servings_information_from_recipe_page(soup, ingredients_element):
             return specific_serving_elements[0].text
 
 
-def get_prep_time_information_from_recipe_page(soup):
+def get_prep_time_information_from_eut_recipe_page(soup):
     prep_time_element = soup.find("div", class_="time-preparation")
     if prep_time_element:
         prep_time = soup.find("div", class_="time-preparation").text
@@ -142,7 +142,7 @@ def get_prep_time_information_from_recipe_page(soup):
         return "Nicht angegeben"
 
 
-def get_categories_information_from_recipe_page(soup):
+def get_categories_information_from_eut_recipe_page(soup):
     category_page_element = soup.find("ul", class_="taxonomies-list")
 
     if category_page_element is None:
@@ -157,7 +157,7 @@ def get_categories_information_from_recipe_page(soup):
         return categories
 
 
-def get_ingredients_information_from_recipe_page(ingredients_element):
+def get_ingredients_information_from_eut_recipe_page(ingredients_element):
     ingredients = []
     for ingredient_element in ingredients_element.find_all('li'):
         if len(ingredient_element.attrs) > 0:
@@ -168,7 +168,7 @@ def get_ingredients_information_from_recipe_page(ingredients_element):
     return ingredients
 
 
-def get_prep_steps_information_from_recipe_page(soup):
+def get_prep_steps_information_from_eut_recipe_page(soup):
     prep_steps = []
     prep_steps_element = soup.find("ul", class_="preparation").findChildren("li", class_="preparation-step",
                                                                             recursive=False)
@@ -187,22 +187,22 @@ def scrap_essen_und_trinken_recipe(soup, recipe_url):
 
     recipe['title'] = soup.find("span", class_="headline-title").text
 
-    recipe['origin'] = get_origin_information_from_recipe_page(soup)
+    recipe['origin'] = get_origin_information_from_eut_recipe_page(soup)
 
     recipe['page'] = 0
 
-    recipe['servings'] = get_servings_information_from_recipe_page(soup, ingredients_element)
+    recipe['servings'] = get_servings_information_from_eut_recipe_page(soup, ingredients_element)
 
-    recipe['prep_time'] = get_prep_time_information_from_recipe_page(soup)
+    recipe['prep_time'] = get_prep_time_information_from_eut_recipe_page(soup)
 
-    recipe['categories'] = get_categories_information_from_recipe_page(soup)
+    recipe['categories'] = get_categories_information_from_eut_recipe_page(soup)
 
-    recipe['ingredients'] = get_ingredients_information_from_recipe_page(ingredients_element)
+    recipe['ingredients'] = get_ingredients_information_from_eut_recipe_page(ingredients_element)
 
-    recipe['steps'] = get_prep_steps_information_from_recipe_page(soup)
+    recipe['steps'] = get_prep_steps_information_from_eut_recipe_page(soup)
 
     return recipe
 
 
 if __name__ == '__main__':
-    scrap_skipped_pages()
+    scrap_essen_und_trinken_pages()
