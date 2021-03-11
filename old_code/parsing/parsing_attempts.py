@@ -1,7 +1,7 @@
 import os
 from string import punctuation
 
-from old_code import parser_grammar, utils
+from old_code.parsing import parser_grammar, utils
 
 """
 file with different approaches to parse ingredients but did not work as hoped

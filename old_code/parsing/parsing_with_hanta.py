@@ -1,7 +1,7 @@
 from HanTa.HanoverTagger import HanoverTagger
 from nltk import word_tokenize
 
-from old_code import parser_grammar, parsing_elements
+from old_code.parsing import parser_grammar, parsing_elements
 
 tagger = HanoverTagger('../../data/resources/morphmodel_ger.pgz')
 
