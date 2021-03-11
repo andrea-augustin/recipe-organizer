@@ -1,33 +1,9 @@
-from bs4 import BeautifulSoup
-import requests
 from time import sleep
 import re
-from os.path import exists
+import grabbers.utils
 
 url_basic = "https://www.essen-und-trinken.de"
 url_archive = "https://www.essen-und-trinken.de/rezepte/archiv"
-
-
-def save_recipe_to_file(recipe, path):
-    file_open_mode = 'a' if exists(path) else 'w'
-
-    with open(path, file_open_mode, encoding='utf-8') as f:
-        f.write("Titel\t" + recipe['title'] + "\n")
-        f.write("URL\t" + recipe['url'] + "\n")
-        f.write("Seite\t" + str(recipe['page']) + "\n")
-        f.write("Portionen\t" + str(recipe['servings']) + "\n")
-        f.write("Dauer\t" + recipe['prep_time'] + "\n")
-        if recipe['categories'] is None:
-            f.write("Kategorien\n")
-        else:
-            f.write("Kategorien\t" + '\t'.join(recipe['categories']) + "\n")
-        f.write("Zutaten\n")
-        for ingredient in recipe['ingredients']:
-            f.write(ingredient + "\n")
-        f.write("Zubereitung\n")
-        for step in recipe['steps']:
-            f.write(step + "\n")
-        f.write("\n")
 
 
 def scrap_skipped_eut_pages(path):
@@ -38,8 +14,8 @@ def scrap_skipped_eut_pages(path):
 
     for recipe_url in urls:
         recipe_url = recipe_url.strip('\n')
-        req_recipe = requests.get(recipe_url)
-        soup_recipe = BeautifulSoup(req_recipe.content, 'html.parser')
+
+        soup_recipe = grabbers.utils.create_soup_object(recipe_url)
         recipe = scrap_essen_und_trinken_recipe(soup_recipe, recipe_url)
 
         if all(['essen_und_trinken' not in recipe['origin'], 'Für_jeden_Tag' not in recipe['origin'],
@@ -48,7 +24,7 @@ def scrap_skipped_eut_pages(path):
 
         file_path = 'essen_und_trinken/' + recipe['origin'] + '.txt'
 
-        save_recipe_to_file(recipe, file_path)
+        grabbers.utils.save_recipe_to_file(recipe, file_path)
 
         sleep(1)
 
@@ -64,13 +40,15 @@ def scrap_essen_und_trinken_pages():
     skipped = []
 
     for i in range(0, 1145):
-        print("Seite " + str(i + 1) + " von 1145")
         recipe_links = []
+
+        print("Seite " + str(i + 1) + " von 1145")
+
         url = url_archive + '?page=' + str(i)
-        req = requests.get(url)
-        soup = BeautifulSoup(req.content, 'html.parser')
+        soup = grabbers.utils.create_soup_object(url)
 
         page_recipe_overview = soup.find("div", class_="panel-panel panel-col")
+
         for a_element in page_recipe_overview.find_all('a', href=True):
             if 'rzpt' in a_element['href']:
                 recipe_links.append(a_element['href'])
@@ -78,14 +56,16 @@ def scrap_essen_und_trinken_pages():
         sleep(1.5)
 
         for recipe_url in recipe_links:
-            req_recipe = requests.get(url_basic + recipe_url)
-            soup_recipe = BeautifulSoup(req_recipe.content, 'html.parser')
+            soup_single_recipe_page = grabbers.utils.create_soup_object(url_basic + recipe_url)
+
             try:
-                recipe = scrap_essen_und_trinken_recipe(soup_recipe, url_basic + recipe_url)
+                recipe = scrap_essen_und_trinken_recipe(soup_single_recipe_page, url_basic + recipe_url)
             except Exception:
                 print("Rezept übersprungen: " + url_basic + recipe_url)
+
                 skipped.append(url_basic + recipe_url)
                 sleep(1.5)
+
                 continue
 
             if all(['essen_und_trinken' not in recipe['origin'], 'Für_jeden_Tag' not in recipe['origin'],
@@ -94,7 +74,7 @@ def scrap_essen_und_trinken_pages():
 
             file_path = recipe['origin'] + '.txt'
 
-            save_recipe_to_file(recipe, file_path)
+            grabbers.utils.save_recipe_to_file(recipe, file_path)
 
             sleep(1.5)
 
@@ -106,6 +86,7 @@ def scrap_essen_und_trinken_pages():
 
 def get_origin_information_from_eut_recipe_page(soup):
     origin_element = soup.find("div", class_="recipe-references").find("div", class_="source-reference")
+
     if origin_element:
         return origin_element.text.split('\n')[-1].strip(' ').replace(' ', '_').replace('/', '_')
     else:
@@ -129,6 +110,7 @@ def get_servings_information_from_eut_recipe_page(soup, ingredients_element):
 
 def get_prep_time_information_from_eut_recipe_page(soup):
     prep_time_element = soup.find("div", class_="time-preparation")
+
     if prep_time_element:
         prep_time = soup.find("div", class_="time-preparation").text
         additional_prep_element = soup.find_all("div", class_="time-addon")
