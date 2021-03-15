@@ -1,6 +1,6 @@
 from time import sleep
 import re
-import grabbers.utils
+import scrapers.utils
 
 url_basic = "https://www.essen-und-trinken.de"
 url_archive = "https://www.essen-und-trinken.de/rezepte/archiv"
@@ -15,7 +15,7 @@ def scrap_skipped_eut_pages(path):
     for recipe_url in urls:
         recipe_url = recipe_url.strip('\n')
 
-        soup_recipe = grabbers.utils.create_soup_object(recipe_url)
+        soup_recipe = scrapers.utils.create_soup_object(recipe_url)
         recipe = scrap_essen_und_trinken_recipe(soup_recipe, recipe_url)
 
         if all(['essen_und_trinken' not in recipe['origin'], 'Für_jeden_Tag' not in recipe['origin'],
@@ -24,7 +24,7 @@ def scrap_skipped_eut_pages(path):
 
         file_path = 'essen_und_trinken/' + recipe['origin'] + '.txt'
 
-        grabbers.utils.save_recipe_to_file(recipe, file_path)
+        scrapers.utils.save_recipe_to_file(recipe, file_path)
 
         sleep(1)
 
@@ -45,7 +45,7 @@ def scrap_essen_und_trinken_pages():
         print("Seite " + str(i + 1) + " von 1145")
 
         url = url_archive + '?page=' + str(i)
-        soup = grabbers.utils.create_soup_object(url)
+        soup = scrapers.utils.create_soup_object(url)
 
         page_recipe_overview = soup.find("div", class_="panel-panel panel-col")
 
@@ -56,7 +56,7 @@ def scrap_essen_und_trinken_pages():
         sleep(1.5)
 
         for recipe_url in recipe_links:
-            soup_single_recipe_page = grabbers.utils.create_soup_object(url_basic + recipe_url)
+            soup_single_recipe_page = scrapers.utils.create_soup_object(url_basic + recipe_url)
 
             try:
                 recipe = scrap_essen_und_trinken_recipe(soup_single_recipe_page, url_basic + recipe_url)
@@ -74,7 +74,7 @@ def scrap_essen_und_trinken_pages():
 
             file_path = recipe['origin'] + '.txt'
 
-            grabbers.utils.save_recipe_to_file(recipe, file_path)
+            scrapers.utils.save_recipe_to_file(recipe, file_path)
 
             sleep(1.5)
 
