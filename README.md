@@ -31,4 +31,4 @@ saved into a `.txt` file named after the release information.
 
 PDF parsing will be started by executing `python pdf_parsing/pdf_recipe_extractor.py`. 
 The user will be asked to select a `.pdf` file from their system.
-The script will then parse the file and save all parsed recipes into a `.txt` file with the same structure as the files in website scrapers.
+The script will then parse the file and save all parsed recipes into a `.txt` file with the same structure as the files in [website scrapers](README.md#website-scrapers).
