@@ -24,7 +24,7 @@ def scrap_skipped_recipes(path_to_processed_recipes):
         grabbers.utils.save_recipe_to_file(recipe, path_to_processed_recipes)
 
 
-def scrap_just_one_cookbook_page():
+def scrap_just_one_cookbook_pages():
     for i in range(1, 58):
         recipe_links = []
         recipes = []
@@ -152,7 +152,6 @@ def check_if_joc_page_is_a_recipe_page(soup):
 
 
 def scrap_just_one_cookbook_recipe(soup, recipe_url):
-    # TODO relegate into function
     if not check_if_joc_page_is_a_recipe_page(soup):
         return None
 
@@ -171,4 +170,4 @@ def scrap_just_one_cookbook_recipe(soup, recipe_url):
 
 
 if __name__ == '__main__':
-    pass
+    scrap_just_one_cookbook_pages()
