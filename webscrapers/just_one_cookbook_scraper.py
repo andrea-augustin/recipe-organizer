@@ -1,5 +1,5 @@
 from time import sleep
-import scrapers.utils
+import webscrapers.utils
 
 url_basic = "https://www.justonecookbook.com/"
 
@@ -13,7 +13,7 @@ def scrap_skipped_recipes(path_to_processed_recipes):
     for url in urls:
         url = url.strip('\n')
 
-        soup = scrapers.utils.create_soup_object(url)
+        soup = webscrapers.utils.create_soup_object(url)
 
         recipe = scrap_just_one_cookbook_recipe(soup, url)
         recipes.append(recipe)
@@ -21,7 +21,7 @@ def scrap_skipped_recipes(path_to_processed_recipes):
         sleep(1)
 
     for recipe in recipes:
-        scrapers.utils.save_recipe_to_file(recipe, path_to_processed_recipes)
+        webscrapers.utils.save_recipe_to_file(recipe, path_to_processed_recipes)
 
 
 def scrap_just_one_cookbook_pages():
@@ -33,7 +33,7 @@ def scrap_just_one_cookbook_pages():
         print("Seite " + str(i) + " von 57")
 
         url = url_basic + 'recipes/page/' + str(i) + '/'
-        soup = scrapers.utils.create_soup_object(url)
+        soup = webscrapers.utils.create_soup_object(url)
 
         page_recipe_overview = soup.find("div", class_="recipes cr")
         for article in page_recipe_overview.find_all('article'):
@@ -42,7 +42,7 @@ def scrap_just_one_cookbook_pages():
         sleep(1)
 
         for recipe_url in recipe_links:
-            soup_single_recipe_page = scrapers.utils.create_soup_object(recipe_url)
+            soup_single_recipe_page = webscrapers.utils.create_soup_object(recipe_url)
 
             try:
                 recipe = scrap_just_one_cookbook_recipe(soup_single_recipe_page, recipe_url)
@@ -61,7 +61,7 @@ def scrap_just_one_cookbook_pages():
 
         file_path = 'just_one_cookbook.txt'
         for recipe in recipes:
-            scrapers.utils.save_recipe_to_file(recipe, file_path)
+            webscrapers.utils.save_recipe_to_file(recipe, file_path)
 
         if len(skipped) == 0:
             continue
