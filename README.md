@@ -5,7 +5,7 @@ The Recipe Organizer is a tool for collecting and processing recipes from differ
 recipe-organizer is written in Python 3.7 and packages needed to run the code can be found in `requirements.txt`
 
 ## Architecture/Flow of data
-
+![overview_data_processing](https://github.com/andrea-augustin/recipe-organizer/blob/main/architecture_data_handling.png)
 
 ## How to use recipe-organizer
 ### Website scrapers
