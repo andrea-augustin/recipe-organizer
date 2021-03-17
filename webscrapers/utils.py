@@ -1,10 +1,28 @@
 from bs4 import BeautifulSoup
 import requests
-from os.path import exists
+import os.path
+import json
 
 
-def save_recipe_to_file(recipe, path):
-    file_open_mode = 'a' if exists(path) else 'w'
+def save_recipes_to_json_file(recipes, path):
+    recipes_to_save = recipes
+    if os.path.exists(path):
+        # TODO check if file exists - exists: load json, update with new recipes, dump; does not exists: simply dump
+        with open(path, encoding='utf-8') as json_file:
+            recipes_to_save = json.load(json_file)
+
+
+    with open(path, 'w', encoding='utf-8') as out:
+        json.dump(recipes_to_save, out, indent=4, ensure_ascii=False)
+
+
+def save_skipped_recipes_to_txt_file(list_of_urls, path):
+    with open(path, 'a', encoding="utf-8") as f:
+        for skipped_recipe_url in list_of_urls:
+            f.write(skipped_recipe_url + '\n')
+
+def save_recipe_to_txt_file(recipe, path):
+    file_open_mode = 'a' if os.path.exists(path) else 'w'
 
     with open(path, file_open_mode, encoding='utf-8') as f:
         f.write("Titel\t" + recipe['title'] + "\n")
@@ -16,12 +34,8 @@ def save_recipe_to_file(recipe, path):
             f.write("Kategorien\n")
         else:
             f.write("Kategorien\t" + '\t'.join(recipe['categories']) + "\n")
-        f.write("Zutaten\n")
-        for ingredient in recipe['ingredients']:
-            f.write(ingredient + "\n")
-        f.write("Zubereitung\n")
-        for step in recipe['steps']:
-            f.write(step + "\n")
+        f.write("Zutaten\t" + '\t'.join(recipe['ingredients']) + '\n')
+        f.write("Zubereitung\t" + '\t'.join(recipe['steps']) + '\n')
         f.write("\n")
 
 

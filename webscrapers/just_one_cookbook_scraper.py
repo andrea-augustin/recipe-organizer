@@ -3,6 +3,8 @@ import webscrapers.utils
 
 url_basic = "https://www.justonecookbook.com/"
 
+filename_skipped_recipes = "skipped_joc.txt"
+
 
 def scrap_skipped_recipes(path_to_output_file):
     with open('skipped.txt', 'r') as f:
@@ -25,10 +27,12 @@ def scrap_skipped_recipes(path_to_output_file):
 
 
 def scrap_just_one_cookbook_pages():
+    recipes = []
+    skipped = []
+
     for i in range(1, 58):
         recipe_links = []
         recipes = []
-        skipped = []
 
         print("Seite " + str(i) + " von 57")
 
@@ -59,18 +63,14 @@ def scrap_just_one_cookbook_pages():
 
             recipes.append(recipe)
 
-        file_path = 'just_one_cookbook.txt'
-        for recipe in recipes:
-            webscrapers.utils.save_recipe_to_txt_file(recipe, file_path)
-
-        if len(skipped) == 0:
-            continue
-
-        with open("skipped.txt", 'a', encoding="utf-8") as f:
-            for skipped_recipe in skipped:
-                f.write(skipped_recipe + '\n')
-
         sleep(1)
+
+    file_path = 'just_one_cookbook.json'
+
+    webscrapers.utils.save_recipes_to_json_file(recipes, file_path)
+
+    if len(skipped) > 0:
+        webscrapers.utils.save_skipped_recipes_to_txt_file(skipped, filename_skipped_recipes)
 
 
 def get_ingredients_information_from_joc_recipe_page(soup):

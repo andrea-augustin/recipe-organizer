@@ -5,17 +5,13 @@ import webscrapers.utils
 url_basic = "https://www.essen-und-trinken.de"
 url_archive = "https://www.essen-und-trinken.de/rezepte/archiv"
 
+filename_skipped_recipes = "skipped_eut.txt"
+
 
 def save_eut_recipes(scraped_recipes):
     for origin, recipes in scraped_recipes.items():
-        file_path = origin + '.txt'
+        file_path = origin + '.json'
         webscrapers.utils.save_recipes_to_json_file(recipes, file_path)
-
-
-def save_urls_of_skipped_recipes_into_txt_file(skipped_recipes):
-    with open("skipped.txt", 'a', encoding="utf-8") as f:
-        for skipped_recipe in skipped_recipes:
-            f.write(skipped_recipe + '\n')
 
 
 def scrap_skipped_eut_pages(path):
@@ -45,7 +41,7 @@ def scrap_skipped_eut_pages(path):
     save_eut_recipes(scraped_recipes)
 
     if len(skipped_recipes) > 0:
-        save_urls_of_skipped_recipes_into_txt_file(skipped_recipes)
+        webscrapers.utils.save_skipped_recipes_to_txt_file(skipped_recipes, filename_skipped_recipes)
 
 
 def scrap_essen_und_trinken_pages():
@@ -95,7 +91,7 @@ def scrap_essen_und_trinken_pages():
     save_eut_recipes(scraped_recipes)
 
     if len(skipped_recipes) > 0:
-        save_urls_of_skipped_recipes_into_txt_file(skipped_recipes)
+        webscrapers.utils.save_skipped_recipes_to_txt_file(skipped_recipes, filename_skipped_recipes)
 
 
 def get_origin_information_from_eut_recipe_page(soup):
