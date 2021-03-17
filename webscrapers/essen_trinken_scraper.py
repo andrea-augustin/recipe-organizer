@@ -32,9 +32,11 @@ def scrap_skipped_eut_pages(path):
             continue
 
         if recipe['origin'] not in scraped_recipes:
-            scraped_recipes[recipe['origin']] = [recipe]
+            scraped_recipes[recipe['origin']] = dict()
+            scraped_recipes[recipe['origin']]['recipes'] = [recipe]
+
         else:
-            scraped_recipes[recipe['origin']].append(recipe)
+            scraped_recipes[recipe['origin']]['recipes'].append(recipe)
 
         sleep(1)
 
@@ -82,9 +84,10 @@ def scrap_essen_und_trinken_pages():
                 continue
 
             if recipe['origin'] not in scraped_recipes:
-                scraped_recipes[recipe['origin']] = [recipe]
+                scraped_recipes[recipe['origin']] = dict()
+                scraped_recipes[recipe['origin']]['recipes'] = [recipe]
             else:
-                scraped_recipes[recipe['origin']].append(recipe)
+                scraped_recipes[recipe['origin']]['recipes'].append(recipe)
 
             sleep(1.5)
 
