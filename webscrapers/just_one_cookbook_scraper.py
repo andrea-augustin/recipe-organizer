@@ -4,11 +4,12 @@ import webscrapers.utils
 url_basic = "https://www.justonecookbook.com/"
 
 
-def scrap_skipped_recipes(path_to_processed_recipes):
+def scrap_skipped_recipes(path_to_output_file):
     with open('skipped.txt', 'r') as f:
         urls = f.readlines()
 
-    recipes = []
+    recipes = dict()
+    recipes['recipes'] = []
 
     for url in urls:
         url = url.strip('\n')
@@ -16,15 +17,14 @@ def scrap_skipped_recipes(path_to_processed_recipes):
         soup = webscrapers.utils.create_soup_object(url)
 
         recipe = scrap_just_one_cookbook_recipe(soup, url)
-        recipes.append(recipe)
+        recipes['recipes'].append(recipe)
 
         sleep(1)
 
-    for recipe in recipes:
-        webscrapers.utils.save_recipe_to_file(recipe, path_to_processed_recipes)
+    webscrapers.utils.save_recipes_to_json_file(recipes, path_to_output_file)
 
 
-def scrap_just_one_cookbook_pages():
+def scrap_just_one_cookbook_pages(path_to_output_file):
     for i in range(1, 58):
         recipe_links = []
         recipes = []
@@ -61,7 +61,7 @@ def scrap_just_one_cookbook_pages():
 
         file_path = 'just_one_cookbook.txt'
         for recipe in recipes:
-            webscrapers.utils.save_recipe_to_file(recipe, file_path)
+            webscrapers.utils.save_recipe_to_txt_file(recipe, file_path)
 
         if len(skipped) == 0:
             continue
@@ -153,18 +153,18 @@ def check_if_joc_page_is_a_recipe_page(soup):
 
 def scrap_just_one_cookbook_recipe(soup, recipe_url):
     if not check_if_joc_page_is_a_recipe_page(soup):
-        return None
+        return {}
 
-    recipe = dict()
-
-    recipe['url'] = recipe_url
-    recipe['title'] = get_recipe_title_information_from_joc_recipe_page(soup)
-    recipe['categories'] = get_categories_information_from_joc_recipe_page(soup)
-    recipe['occasion'] = get_occasion_information_from_joc_recipe_page(soup)
-    recipe['servings'] = get_prep_time_information_from_joc_recipe_page(soup)
-    recipe['ingredients'] = get_ingredients_information_from_joc_recipe_page(soup)
-    recipe['steps'] = get_prep_steps_information_from_joc_recipe_page(soup)
-    recipe['prep_time'] = get_prep_time_information_from_joc_recipe_page(soup)
+    recipe = {
+        'tile': get_recipe_title_information_from_joc_recipe_page(soup),
+        'url': recipe_url,
+        'page': 0,
+        'servings': get_servings_information_from_joc_recipe_page(soup),
+        'prep_time': get_prep_time_information_from_joc_recipe_page(soup),
+        'categories': get_categories_information_from_joc_recipe_page(soup),
+        'ingredients': get_ingredients_information_from_joc_recipe_page(soup),
+        'steps': get_prep_steps_information_from_joc_recipe_page(soup)
+    }
 
     return recipe
 
