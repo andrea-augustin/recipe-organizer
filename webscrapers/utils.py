@@ -1,16 +1,30 @@
 from bs4 import BeautifulSoup
+import copy
 import requests
 import os.path
 import json
 
 
+def unify_scraped_recipes_with_recipes_from_json_file(scraped_recipes, recipes_from_json):
+    updated_recipes = copy.deepcopy(recipes_from_json)
+
+    for recipe in scraped_recipes['recipes']:
+        if recipe in recipes_from_json:
+            continue
+
+        updated_recipes['recipes'].extend(recipe)
+
+    return updated_recipes
+
+
 def save_recipes_to_json_file(recipes, path):
     recipes_to_save = recipes
-    if os.path.exists(path):
-        # TODO check if file exists - exists: load json, update with new recipes, dump; does not exists: simply dump
-        with open(path, encoding='utf-8') as json_file:
-            recipes_to_save = json.load(json_file)
 
+    if os.path.exists(path):
+        with open(path, encoding='utf-8') as json_file:
+            recipes_from_file = json.load(json_file)
+
+        recipes_to_save = unify_scraped_recipes_with_recipes_from_json_file(recipes, recipes_from_file)
 
     with open(path, 'w', encoding='utf-8') as out:
         json.dump(recipes_to_save, out, indent=4, ensure_ascii=False)
