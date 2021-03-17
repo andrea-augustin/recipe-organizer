@@ -6,11 +6,24 @@ url_basic = "https://www.essen-und-trinken.de"
 url_archive = "https://www.essen-und-trinken.de/rezepte/archiv"
 
 
+def save_eut_recipes(scraped_recipes):
+    for origin, recipes in scraped_recipes.items():
+        file_path = origin + '.txt'
+        webscrapers.utils.save_recipes_to_json_file(recipes, file_path)
+
+
+def save_urls_of_skipped_recipes_into_txt_file(skipped_recipes):
+    with open("skipped.txt", 'a', encoding="utf-8") as f:
+        for skipped_recipe in skipped_recipes:
+            f.write(skipped_recipe + '\n')
+
+
 def scrap_skipped_eut_pages(path):
     with open(path, 'r') as f:
         urls = f.readlines()
 
-    skipped = []
+    skipped_recipes = []
+    scraped_recipes = dict()
 
     for recipe_url in urls:
         recipe_url = recipe_url.strip('\n')
@@ -22,22 +35,22 @@ def scrap_skipped_eut_pages(path):
                 'essen_und_trinken' not in recipe['origin']]):
             continue
 
-        file_path = 'essen_und_trinken/' + recipe['origin'] + '.txt'
-
-        webscrapers.utils.save_recipe_to_file(recipe, file_path)
+        if recipe['origin'] not in scraped_recipes:
+            scraped_recipes[recipe['origin']] = [recipe]
+        else:
+            scraped_recipes[recipe['origin']].append(recipe)
 
         sleep(1)
 
-    if len(skipped) == 0:
-        return
+    save_eut_recipes(scraped_recipes)
 
-    with open("skipped.txt", 'a', encoding="utf-8") as f:
-        for skipped_recipe in skipped:
-            f.write(skipped_recipe + '\n')
+    if len(skipped_recipes) > 0:
+        save_urls_of_skipped_recipes_into_txt_file(skipped_recipes)
 
 
 def scrap_essen_und_trinken_pages():
-    skipped = []
+    skipped_recipes = []
+    scraped_recipes = dict()
 
     for i in range(0, 1145):
         recipe_links = []
@@ -63,7 +76,7 @@ def scrap_essen_und_trinken_pages():
             except Exception:
                 print("Rezept übersprungen: " + url_basic + recipe_url)
 
-                skipped.append(url_basic + recipe_url)
+                skipped_recipes.append(url_basic + recipe_url)
                 sleep(1.5)
 
                 continue
@@ -72,16 +85,17 @@ def scrap_essen_und_trinken_pages():
                     'essen_und_trinken' not in recipe['origin']]):
                 continue
 
-            file_path = recipe['origin'] + '.txt'
-
-            webscrapers.utils.save_recipe_to_file(recipe, file_path)
+            if recipe['origin'] not in scraped_recipes:
+                scraped_recipes[recipe['origin']] = [recipe]
+            else:
+                scraped_recipes[recipe['origin']].append(recipe)
 
             sleep(1.5)
 
-    if len(skipped) > 0:
-        with open("skipped.txt", 'a', encoding="utf-8") as f:
-            for skipped_recipe in skipped:
-                f.write(skipped_recipe + '\n')
+    save_eut_recipes(scraped_recipes)
+
+    if len(skipped_recipes) > 0:
+        save_urls_of_skipped_recipes_into_txt_file(skipped_recipes)
 
 
 def get_origin_information_from_eut_recipe_page(soup):
@@ -161,27 +175,23 @@ def get_prep_steps_information_from_eut_recipe_page(soup):
     return prep_steps
 
 
+def get_recipe_titel_information_from_eut_recipe_page(soup):
+    return soup.find("span", class_="headline-title").text
+
+
 def scrap_essen_und_trinken_recipe(soup, recipe_url):
     ingredients_element = soup.find("section", class_="ingredients")
-    recipe = dict()
 
-    recipe['url'] = recipe_url
-
-    recipe['title'] = soup.find("span", class_="headline-title").text
-
-    recipe['origin'] = get_origin_information_from_eut_recipe_page(soup)
-
-    recipe['page'] = 0
-
-    recipe['servings'] = get_servings_information_from_eut_recipe_page(soup, ingredients_element)
-
-    recipe['prep_time'] = get_prep_time_information_from_eut_recipe_page(soup)
-
-    recipe['categories'] = get_categories_information_from_eut_recipe_page(soup)
-
-    recipe['ingredients'] = get_ingredients_information_from_eut_recipe_page(ingredients_element)
-
-    recipe['steps'] = get_prep_steps_information_from_eut_recipe_page(soup)
+    recipe = {
+        'title': get_recipe_titel_information_from_eut_recipe_page(soup),
+        'url': recipe_url,
+        'page': 0,
+        'servings': get_servings_information_from_eut_recipe_page(soup, ingredients_element),
+        'prep_time': get_prep_time_information_from_eut_recipe_page(soup),
+        'categories': get_categories_information_from_eut_recipe_page(soup),
+        'ingredients': get_ingredients_information_from_eut_recipe_page(ingredients_element),
+        'steps': get_prep_steps_information_from_eut_recipe_page(soup)
+    }
 
     return recipe
 
