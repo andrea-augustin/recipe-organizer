@@ -24,7 +24,7 @@ def scrap_skipped_recipes(path_to_output_file):
     webscrapers.utils.save_recipes_to_json_file(recipes, path_to_output_file)
 
 
-def scrap_just_one_cookbook_pages(path_to_output_file):
+def scrap_just_one_cookbook_pages():
     for i in range(1, 58):
         recipe_links = []
         recipes = []
