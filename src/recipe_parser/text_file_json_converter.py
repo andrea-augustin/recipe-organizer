@@ -72,7 +72,8 @@ def get_prep_time_of_recipe_from_text_file(recipe):
 
 def get_categories_of_recipe_from_text_file(recipe):
     categories_idx = get_specific_list_idx_from_single_recipe(recipe, "^Kategorien")
-    return recipe[categories_idx].split('\t')[1]
+    test = recipe[categories_idx].split('\t')[1:]
+    return recipe[categories_idx].split('\t')[1:]
 
 
 def prepare_recipe_for_json_format(recipe):
@@ -127,7 +128,9 @@ def convert_text_file_to_json_file(path_to_text_file, path_to_json_file):
 
 
 def main():
-    convert_text_file_to_json_file(filedialog.askopenfilename(), 'converted_file.json')
+    file_path = filedialog.askopenfilename()
+    file_name = file_path.split('/')[-1][:-4]
+    convert_text_file_to_json_file(file_path, file_name + '.json')
 
 
 if __name__ == '__main__':
